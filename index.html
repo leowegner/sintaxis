@@ -48,6 +48,7 @@
     font-size: 22px; font-weight: 600;
     margin-bottom: 8px;
     position: relative;
+    padding: 0 80px;
   }
   .token {
     padding: 4px 6px;
@@ -497,7 +498,10 @@ function renderLines() {
   const positions = tokenPositions();
   if (!positions.length) return;
 
-  const totalWidth = Math.max(...positions.map(p => p.right)) + 24;
+  // Reservamos margen lateral para que los labels que sobresalen del rango
+  // (p. ej. "Predicado verbal" en un rango de una sola palabra corta) no se corten.
+  const SIDE_PAD = 80;
+  const totalWidth = Math.max(...positions.map(p => p.right)) + SIDE_PAD;
   svg.setAttribute('width', totalWidth);
 
   // Agrupar anotaciones por nivel
@@ -1036,23 +1040,40 @@ Ejemplos:
 ETIQUETAS VÁLIDAS (USA EXCLUSIVAMENTE ESTAS, NO INVENTES OTRAS):
 ${JSON.stringify(validLabelsByLevel(), null, 2)}
 
-EJEMPLO de análisis correcto de "Manuel estudia y Pablo escucha música":
-[
-  {"from":0,"to":0,"level":1,"label":"SN - NS"},
-  {"from":1,"to":1,"level":1,"label":"SV - NP"},
-  {"from":2,"to":2,"level":1,"label":"Nx"},
-  {"from":3,"to":3,"level":1,"label":"SN - NS"},
-  {"from":4,"to":4,"level":1,"label":"SV - NP"},
-  {"from":5,"to":5,"level":1,"label":"SN - CD"},
-  {"from":0,"to":0,"level":2,"label":"Sujeto"},
-  {"from":1,"to":1,"level":2,"label":"Predicado verbal"},
-  {"from":3,"to":3,"level":2,"label":"Sujeto"},
-  {"from":4,"to":5,"level":2,"label":"Predicado verbal"},
-  {"from":0,"to":1,"level":3,"label":"P1"},
-  {"from":2,"to":2,"level":3,"label":"Nx"},
-  {"from":3,"to":5,"level":3,"label":"P2"},
-  {"from":0,"to":5,"level":4,"label":"O. Compuesta coordinada copulativa"}
-]
+EJEMPLO 1, "Manuel estudia y Pablo escucha música":
+{
+  "annotations": [
+    {"from":0,"to":0,"level":1,"label":"SN - NS"},
+    {"from":1,"to":1,"level":1,"label":"SV - NP"},
+    {"from":2,"to":2,"level":1,"label":"Nx"},
+    {"from":3,"to":3,"level":1,"label":"SN - NS"},
+    {"from":4,"to":4,"level":1,"label":"SV - NP"},
+    {"from":5,"to":5,"level":1,"label":"SN - CD"},
+    {"from":0,"to":0,"level":2,"label":"Sujeto"},
+    {"from":1,"to":1,"level":2,"label":"Predicado verbal"},
+    {"from":3,"to":3,"level":2,"label":"Sujeto"},
+    {"from":4,"to":5,"level":2,"label":"Predicado verbal"},
+    {"from":0,"to":1,"level":3,"label":"P1"},
+    {"from":2,"to":2,"level":3,"label":"Nx"},
+    {"from":3,"to":5,"level":3,"label":"P2"},
+    {"from":0,"to":5,"level":4,"label":"O. Compuesta coordinada copulativa"}
+  ],
+  "tacitSubjects": []
+}
+
+EJEMPLO 2, "Llegaré mañana" (sujeto tácito 'yo' por la desinencia -é):
+{
+  "annotations": [
+    {"from":0,"to":0,"level":1,"label":"SV - NP"},
+    {"from":1,"to":1,"level":1,"label":"SAdv - CCM"},
+    {"from":0,"to":1,"level":2,"label":"Predicado verbal"},
+    {"from":0,"to":1,"level":4,"label":"O. Simple"}
+  ],
+  "tacitSubjects": [
+    {"scope":"","text":"yo"}
+  ]
+}
+Nota del ejemplo 2: NO hay SN-NS porque no hay sujeto explícito. NO hay "Sujeto" en nivel 2. El sujeto va únicamente en "tacitSubjects". NO hay nivel 3 porque es simple.
 
 ORACIÓN A ANALIZAR: "${state.tokens.join(' ')}"
 TOKENS (índice : palabra): ${JSON.stringify(state.tokens.map((t, i) => `${i}:${t}`))}
@@ -1073,7 +1094,8 @@ Reglas:
 - "from" y "to" son índices de tokens (inclusivos por ambos extremos).
 - Cada anotación debe usar una etiqueta EXACTA de la lista de válidas. NO inventes etiquetas.
 - Cubre los niveles necesarios. NO te saltes el nivel 4 (tipo de oración). En oraciones simples NO pongas nivel 3.
-- Si una proposición no tiene SN-NS explícito porque el sujeto está omitido, añade un sujeto tácito en "tacitSubjects" indicando el pronombre (él, ella, yo, tú, ellos…). Para oraciones simples deja "scope" como "" (toda la oración); para compuestas usa "P1", "P2", etc.
+- OBLIGATORIO: si una proposición tiene un verbo conjugado pero NINGÚN SN-NS explícito en su rango, debes añadir un sujeto tácito en "tacitSubjects" deduciéndolo de la desinencia verbal (yo/tú/él/ella/nosotros/vosotros/ellos…). En ese caso NO inventes un SN-NS ni un "Sujeto" de nivel 2; el sujeto va SOLO en tacitSubjects.
+- Para oraciones simples con sujeto tácito usa "scope": "" (toda la oración). Para compuestas asigna "P1", "P2", etc. según en qué proposición esté omitido.
 - Si NO hay sujetos tácitos, deja "tacitSubjects" como [].
 - JSON válido. Nada más.`;
 }
