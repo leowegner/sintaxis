@@ -293,99 +293,92 @@
 </div>
 
 <script>
-// ============ BANCO DE ORACIONES ============
+// ============ BANCO DE ORACIONES (con análisis pre-hechos) ============
+const PREBUILT = [
+  {"sentence":"Manuel estudia","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":0,"to":1,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Los niños juegan","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAI"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"El sol brilla","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAI"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Mi hermana duerme","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAI"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Los pájaros vuelan","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAI"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Pablo escucha música","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SN - CD"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAT"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Ana lee un libro","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":3,"level":1,"label":"SN - CD"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":3,"level":2,"label":"Predicado verbal"},{"from":0,"to":3,"level":3,"label":"OSAT"},{"from":0,"to":3,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"El perro come carne","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SN - CD"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":3,"level":2,"label":"Predicado verbal"},{"from":0,"to":3,"level":3,"label":"OSAT"},{"from":0,"to":3,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"María compró flores","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SN - CD"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAT"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Los alumnos resolvieron el problema","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":4,"level":1,"label":"SN - CD"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":4,"level":3,"label":"OSAT"},{"from":0,"to":4,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Le regalé un libro a mi hermano","annotations":[{"from":0,"to":0,"level":1,"label":"SN - CI"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":3,"level":1,"label":"SN - CD"},{"from":4,"to":6,"level":1,"label":"SPrep - CI"},{"from":0,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":6,"level":3,"label":"OSAT"},{"from":0,"to":6,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"yo"}]},
+  {"sentence":"El profesor explicó la lección a los alumnos","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":4,"level":1,"label":"SN - CD"},{"from":5,"to":7,"level":1,"label":"SPrep - CI"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":7,"level":2,"label":"Predicado verbal"},{"from":0,"to":7,"level":3,"label":"OSAT"},{"from":0,"to":7,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Te he comprado un helado","annotations":[{"from":0,"to":0,"level":1,"label":"SN - CI"},{"from":1,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":4,"level":1,"label":"SN - CD"},{"from":0,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":4,"level":3,"label":"OSAT"},{"from":0,"to":4,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"yo"}]},
+  {"sentence":"Mi madre cocinó la cena para nosotros","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":4,"level":1,"label":"SN - CD"},{"from":5,"to":6,"level":1,"label":"SPrep - CI"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":6,"level":3,"label":"OSAT"},{"from":0,"to":6,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Le dije la verdad a Ana","annotations":[{"from":0,"to":0,"level":1,"label":"SN - CI"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":3,"level":1,"label":"SN - CD"},{"from":4,"to":5,"level":1,"label":"SPrep - CI"},{"from":0,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":5,"level":3,"label":"OSAT"},{"from":0,"to":5,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"yo"}]},
+  {"sentence":"Vivimos en Madrid","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":2,"level":1,"label":"SPrep - CCL"},{"from":0,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAI"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"nosotros"}]},
+  {"sentence":"Llegaré mañana","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SAdv - CCT"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":0,"to":1,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"yo"}]},
+  {"sentence":"Los niños corren rápidamente","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SAdv - CCM"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":3,"level":2,"label":"Predicado verbal"},{"from":0,"to":3,"level":3,"label":"OSAI"},{"from":0,"to":3,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Estudio por las tardes","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":3,"level":1,"label":"SPrep - CCT"},{"from":0,"to":3,"level":2,"label":"Predicado verbal"},{"from":0,"to":3,"level":3,"label":"OSAI"},{"from":0,"to":3,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"yo"}]},
+  {"sentence":"Trabajo en la oficina los lunes","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":3,"level":1,"label":"SPrep - CCL"},{"from":4,"to":5,"level":1,"label":"SAdv - CCT"},{"from":0,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":5,"level":3,"label":"OSAI"},{"from":0,"to":5,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"yo"}]},
+  {"sentence":"Manuel es estudiante","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SN - Atrib."},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":2,"level":2,"label":"Predicado nominal"},{"from":0,"to":2,"level":3,"label":"OSCop"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"El cielo está nublado","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":3,"level":2,"label":"Predicado nominal"},{"from":0,"to":3,"level":3,"label":"OSCop"},{"from":0,"to":3,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"María parece cansada","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":2,"level":2,"label":"Predicado nominal"},{"from":0,"to":2,"level":3,"label":"OSCop"},{"from":0,"to":2,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Mis amigos son simpáticos","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":3,"level":2,"label":"Predicado nominal"},{"from":0,"to":3,"level":3,"label":"OSCop"},{"from":0,"to":3,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Ese coche es rojo","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":3,"level":2,"label":"Predicado nominal"},{"from":0,"to":3,"level":3,"label":"OSCop"},{"from":0,"to":3,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"El cuadro fue pintado por Picasso","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":5,"level":1,"label":"SPrep - C. Agente"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":5,"level":3,"label":"OSP"},{"from":0,"to":5,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"La casa fue construida por mi abuelo","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":6,"level":1,"label":"SPrep - C. Agente"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":6,"level":3,"label":"OSP"},{"from":0,"to":6,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"El premio fue entregado por el alcalde","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":6,"level":1,"label":"SPrep - C. Agente"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":6,"level":3,"label":"OSP"},{"from":0,"to":6,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Los exámenes serán corregidos por los profesores","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":6,"level":1,"label":"SPrep - C. Agente"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":6,"level":3,"label":"OSP"},{"from":0,"to":6,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"La carta fue escrita por Ana","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":5,"level":1,"label":"SPrep - C. Agente"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":5,"level":3,"label":"OSP"},{"from":0,"to":5,"level":4,"label":"O. Simple"}],"tacitSubjects":[]},
+  {"sentence":"Manuel estudia y Pablo escucha música","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SN - NS"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":5,"to":5,"level":1,"label":"SN - CD"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":3,"level":2,"label":"Sujeto"},{"from":4,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":5,"level":3,"label":"OSAT"},{"from":0,"to":5,"level":4,"label":"O. Compuesta coordinada copulativa"}],"tacitSubjects":[]},
+  {"sentence":"Ana lee y María escribe","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SN - NS"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":3,"level":2,"label":"Sujeto"},{"from":4,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":4,"level":3,"label":"OSAI"},{"from":0,"to":4,"level":4,"label":"O. Compuesta coordinada copulativa"}],"tacitSubjects":[]},
+  {"sentence":"Mi padre cocina y mi madre limpia","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"Nx"},{"from":4,"to":5,"level":1,"label":"SN - NS"},{"from":6,"to":6,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":4,"to":5,"level":2,"label":"Sujeto"},{"from":6,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAI"},{"from":3,"to":3,"level":3,"label":"Nx"},{"from":4,"to":6,"level":3,"label":"OSAI"},{"from":0,"to":6,"level":4,"label":"O. Compuesta coordinada copulativa"}],"tacitSubjects":[]},
+  {"sentence":"Llovía e hicimos los deberes en casa","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"Nx"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":4,"level":1,"label":"SN - CD"},{"from":5,"to":6,"level":1,"label":"SPrep - CCL"},{"from":0,"to":0,"level":2,"label":"Predicado verbal"},{"from":2,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"OSImp"},{"from":1,"to":1,"level":3,"label":"Nx"},{"from":2,"to":6,"level":3,"label":"OSAT"},{"from":0,"to":6,"level":4,"label":"O. Compuesta coordinada copulativa"}],"tacitSubjects":[{"scope":"P2","text":"nosotros"}]},
+  {"sentence":"No fui al cine ni vi la película","annotations":[{"from":0,"to":0,"level":1,"label":"SAdv - CCM"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":3,"level":1,"label":"SPrep - CCL"},{"from":4,"to":4,"level":1,"label":"Nx"},{"from":5,"to":5,"level":1,"label":"SV - NP"},{"from":6,"to":7,"level":1,"label":"SN - CD"},{"from":0,"to":3,"level":2,"label":"Predicado verbal"},{"from":5,"to":7,"level":2,"label":"Predicado verbal"},{"from":0,"to":3,"level":3,"label":"OSAI"},{"from":4,"to":4,"level":3,"label":"Nx"},{"from":5,"to":7,"level":3,"label":"OSAT"},{"from":0,"to":7,"level":4,"label":"O. Compuesta coordinada copulativa"}],"tacitSubjects":[{"scope":"P1","text":"yo"},{"scope":"P2","text":"yo"}]},
+  {"sentence":"Quería ir pero estaba cansado","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SN - CD"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":4,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":4,"level":2,"label":"Predicado nominal"},{"from":0,"to":1,"level":3,"label":"OSAT"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":4,"level":3,"label":"OSCop"},{"from":0,"to":4,"level":4,"label":"O. Compuesta coordinada adversativa"}],"tacitSubjects":[{"scope":"P1","text":"yo"},{"scope":"P2","text":"yo"}]},
+  {"sentence":"El examen era difícil mas lo aprobé","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SAdj - Atrib."},{"from":4,"to":4,"level":1,"label":"Nx"},{"from":5,"to":5,"level":1,"label":"SN - CD"},{"from":6,"to":6,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":3,"level":2,"label":"Predicado nominal"},{"from":5,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":3,"level":3,"label":"OSCop"},{"from":4,"to":4,"level":3,"label":"Nx"},{"from":5,"to":6,"level":3,"label":"OSAT"},{"from":0,"to":6,"level":4,"label":"O. Compuesta coordinada adversativa"}],"tacitSubjects":[{"scope":"P2","text":"yo"}]},
+  {"sentence":"No estudia en Madrid sino en Sevilla","annotations":[{"from":0,"to":0,"level":1,"label":"SAdv - CCM"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":3,"level":1,"label":"SPrep - CCL"},{"from":4,"to":4,"level":1,"label":"Nx"},{"from":5,"to":6,"level":1,"label":"SPrep - CCL"},{"from":0,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":6,"level":3,"label":"OSAI"},{"from":0,"to":6,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"él"}]},
+  {"sentence":"Hace frío pero no llueve","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SN - CD"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SAdv - CCM"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSImp"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":4,"level":3,"label":"OSImp"},{"from":0,"to":4,"level":4,"label":"O. Compuesta coordinada adversativa"}],"tacitSubjects":[]},
+  {"sentence":"Lo intenté mas no lo conseguí","annotations":[{"from":0,"to":0,"level":1,"label":"SN - CD"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SAdv - CCM"},{"from":4,"to":4,"level":1,"label":"SN - CD"},{"from":5,"to":5,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAT"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":5,"level":3,"label":"OSAT"},{"from":0,"to":5,"level":4,"label":"O. Compuesta coordinada adversativa"}],"tacitSubjects":[{"scope":"P1","text":"yo"},{"scope":"P2","text":"yo"}]},
+  {"sentence":"¿Estudias o trabajas?","annotations":[{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":3,"level":2,"label":"Predicado verbal"},{"from":1,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":3,"level":3,"label":"OSAI"},{"from":1,"to":3,"level":4,"label":"O. Compuesta coordinada disyuntiva"}],"tacitSubjects":[{"scope":"P1","text":"tú"},{"scope":"P2","text":"tú"}]},
+  {"sentence":"Vendrás conmigo o te quedarás en casa","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SPrep - CCC"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":4,"level":1,"label":"SV - NP"},{"from":5,"to":6,"level":1,"label":"SPrep - CCL"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":6,"level":3,"label":"OSAI"},{"from":0,"to":6,"level":4,"label":"O. Compuesta coordinada disyuntiva"}],"tacitSubjects":[{"scope":"P1","text":"tú"},{"scope":"P2","text":"tú"}]},
+  {"sentence":"Compra pan o trae galletas","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SN - CD"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":4,"level":1,"label":"SN - CD"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAT"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":4,"level":3,"label":"OSAT"},{"from":0,"to":4,"level":4,"label":"O. Compuesta coordinada disyuntiva"}],"tacitSubjects":[{"scope":"P1","text":"tú"},{"scope":"P2","text":"tú"}]},
+  {"sentence":"O vienes ahora o te dejo aquí","annotations":[{"from":0,"to":0,"level":1,"label":"Nx"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SAdv - CCT"},{"from":3,"to":3,"level":1,"label":"Nx"},{"from":4,"to":4,"level":1,"label":"SN - CD"},{"from":5,"to":5,"level":1,"label":"SV - NP"},{"from":6,"to":6,"level":1,"label":"SAdv - CCL"},{"from":1,"to":2,"level":2,"label":"Predicado verbal"},{"from":4,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"Nx"},{"from":1,"to":2,"level":3,"label":"OSAI"},{"from":3,"to":3,"level":3,"label":"Nx"},{"from":4,"to":6,"level":3,"label":"OSAT"},{"from":0,"to":6,"level":4,"label":"O. Compuesta coordinada disyuntiva"}],"tacitSubjects":[{"scope":"P1","text":"tú"},{"scope":"P2","text":"yo"}]},
+  {"sentence":"¿Quieres té u otra bebida?","annotations":[{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SN - CD"},{"from":3,"to":3,"level":1,"label":"Nx"},{"from":4,"to":5,"level":1,"label":"SN - CD"},{"from":1,"to":5,"level":2,"label":"Predicado verbal"},{"from":1,"to":5,"level":3,"label":"OSAT"},{"from":1,"to":5,"level":4,"label":"O. Simple"}],"tacitSubjects":[{"scope":"","text":"tú"}]},
+  {"sentence":"Llegué, vi, vencí","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":0,"to":0,"level":2,"label":"Predicado verbal"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":4,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"OSAI"},{"from":2,"to":2,"level":3,"label":"OSAI"},{"from":4,"to":4,"level":3,"label":"OSAI"},{"from":0,"to":4,"level":4,"label":"O. Compuesta yuxtapuesta"}],"tacitSubjects":[{"scope":"P1","text":"yo"},{"scope":"P2","text":"yo"},{"scope":"P3","text":"yo"}]},
+  {"sentence":"Unos cantaban, otros bailaban","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SN - NS"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":3,"level":2,"label":"Sujeto"},{"from":4,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":3,"to":4,"level":3,"label":"OSAI"},{"from":0,"to":4,"level":4,"label":"O. Compuesta yuxtapuesta"}],"tacitSubjects":[]},
+  {"sentence":"Hace calor, abre la ventana","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SN - CD"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":5,"level":1,"label":"SN - CD"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSImp"},{"from":3,"to":5,"level":3,"label":"OSAT"},{"from":0,"to":5,"level":4,"label":"O. Compuesta yuxtapuesta"}],"tacitSubjects":[{"scope":"P2","text":"tú"}]},
+  {"sentence":"El cielo se nubló, empezó a llover","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":3,"level":1,"label":"SV - NP"},{"from":5,"to":7,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":2,"to":3,"level":2,"label":"Predicado verbal"},{"from":5,"to":7,"level":2,"label":"Predicado verbal"},{"from":0,"to":3,"level":3,"label":"OSAI"},{"from":5,"to":7,"level":3,"label":"OSImp"},{"from":0,"to":7,"level":4,"label":"O. Compuesta yuxtapuesta"}],"tacitSubjects":[]},
+  {"sentence":"Ana cocina, Pablo limpia, María pone la mesa","annotations":[{"from":0,"to":0,"level":1,"label":"SN - NS"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SN - NS"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":6,"to":6,"level":1,"label":"SN - NS"},{"from":7,"to":7,"level":1,"label":"SV - NP"},{"from":8,"to":9,"level":1,"label":"SN - CD"},{"from":0,"to":0,"level":2,"label":"Sujeto"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":3,"level":2,"label":"Sujeto"},{"from":4,"to":4,"level":2,"label":"Predicado verbal"},{"from":6,"to":6,"level":2,"label":"Sujeto"},{"from":7,"to":9,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":3,"to":4,"level":3,"label":"OSAI"},{"from":6,"to":9,"level":3,"label":"OSAT"},{"from":0,"to":9,"level":4,"label":"O. Compuesta yuxtapuesta"}],"tacitSubjects":[]},
+  {"sentence":"Quiero que vengas","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"Nx"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":0,"to":0,"level":2,"label":"Predicado verbal"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"OSAI"},{"from":1,"to":1,"level":3,"label":"Nx"},{"from":2,"to":2,"level":3,"label":"OSAI"},{"from":0,"to":2,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"yo"},{"scope":"P2","text":"tú"}]},
+  {"sentence":"Me alegra que hayas aprobado","annotations":[{"from":0,"to":0,"level":1,"label":"SN - CI"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":4,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSImp"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":4,"level":3,"label":"OSAI"},{"from":0,"to":4,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P2","text":"tú"}]},
+  {"sentence":"Es necesario que estudies más","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SAdj - Atrib."},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":4,"level":1,"label":"SAdv - CCM"},{"from":0,"to":1,"level":2,"label":"Predicado nominal"},{"from":3,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSImp"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":4,"level":3,"label":"OSAI"},{"from":0,"to":4,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P2","text":"tú"}]},
+  {"sentence":"Dijo que llegaría tarde","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"Nx"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SAdv - CCT"},{"from":0,"to":0,"level":2,"label":"Predicado verbal"},{"from":2,"to":3,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"OSAI"},{"from":1,"to":1,"level":3,"label":"Nx"},{"from":2,"to":3,"level":3,"label":"OSAI"},{"from":0,"to":3,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"él"},{"scope":"P2","text":"él"}]},
+  {"sentence":"Espero que tengas suerte","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"Nx"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SN - CD"},{"from":0,"to":0,"level":2,"label":"Predicado verbal"},{"from":2,"to":3,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"OSAI"},{"from":1,"to":1,"level":3,"label":"Nx"},{"from":2,"to":3,"level":3,"label":"OSAT"},{"from":0,"to":3,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"yo"},{"scope":"P2","text":"tú"}]},
+  {"sentence":"El libro que compré es interesante","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":5,"to":5,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":3,"to":3,"level":2,"label":"Predicado verbal"},{"from":4,"to":5,"level":2,"label":"Predicado nominal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":3,"level":3,"label":"OSAI"},{"from":4,"to":5,"level":3,"label":"OSImp"},{"from":0,"to":5,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P2","text":"yo"}]},
+  {"sentence":"La casa donde vivo es grande","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":5,"to":5,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":3,"to":3,"level":2,"label":"Predicado verbal"},{"from":4,"to":5,"level":2,"label":"Predicado nominal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":3,"level":3,"label":"OSAI"},{"from":4,"to":5,"level":3,"label":"OSImp"},{"from":0,"to":5,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P2","text":"yo"}]},
+  {"sentence":"El profesor que nos enseña es muy bueno","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SN - CD"},{"from":4,"to":4,"level":1,"label":"SV - NP"},{"from":5,"to":5,"level":1,"label":"SV - NP"},{"from":6,"to":7,"level":1,"label":"SAdj - Atrib."},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":3,"to":4,"level":2,"label":"Predicado verbal"},{"from":5,"to":7,"level":2,"label":"Predicado nominal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":4,"level":3,"label":"OSImp"},{"from":5,"to":7,"level":3,"label":"OSImp"},{"from":0,"to":7,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[]},
+  {"sentence":"La película que vimos ayer me gustó","annotations":[{"from":0,"to":1,"level":1,"label":"SN - NS"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":4,"level":1,"label":"SAdv - CCT"},{"from":5,"to":5,"level":1,"label":"SN - CI"},{"from":6,"to":6,"level":1,"label":"SV - NP"},{"from":0,"to":1,"level":2,"label":"Sujeto"},{"from":3,"to":4,"level":2,"label":"Predicado verbal"},{"from":5,"to":6,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":4,"level":3,"label":"OSAI"},{"from":5,"to":6,"level":3,"label":"OSImp"},{"from":0,"to":6,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P2","text":"nosotros"}]},
+  {"sentence":"Conozco al chico que está hablando","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":2,"level":1,"label":"SN - CD"},{"from":3,"to":3,"level":1,"label":"Nx"},{"from":4,"to":5,"level":1,"label":"SV - NP"},{"from":0,"to":2,"level":2,"label":"Predicado verbal"},{"from":4,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":2,"level":3,"label":"OSAT"},{"from":3,"to":3,"level":3,"label":"Nx"},{"from":4,"to":5,"level":3,"label":"OSImp"},{"from":0,"to":5,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"yo"}]},
+  {"sentence":"Cuando llegues, llámame","annotations":[{"from":0,"to":0,"level":1,"label":"Nx"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":3,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"Nx"},{"from":1,"to":1,"level":3,"label":"OSAI"},{"from":3,"to":3,"level":3,"label":"OSAI"},{"from":0,"to":3,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"tú"},{"scope":"P2","text":"tú"}]},
+  {"sentence":"Si estudias aprobarás","annotations":[{"from":0,"to":0,"level":1,"label":"Nx"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":2,"to":2,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"Nx"},{"from":1,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":2,"level":3,"label":"OSAI"},{"from":0,"to":2,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"tú"},{"scope":"P2","text":"tú"}]},
+  {"sentence":"Llegué tarde porque había mucho tráfico","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SAdv - CCT"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"SV - NP"},{"from":4,"to":5,"level":1,"label":"SN - CD"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":3,"to":5,"level":2,"label":"Predicado verbal"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":2,"level":3,"label":"Nx"},{"from":3,"to":5,"level":3,"label":"OSImp"},{"from":0,"to":5,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"yo"}]},
+  {"sentence":"Aunque llueva iremos al campo","annotations":[{"from":0,"to":0,"level":1,"label":"Nx"},{"from":1,"to":1,"level":1,"label":"SV - NP"},{"from":2,"to":2,"level":1,"label":"SV - NP"},{"from":3,"to":4,"level":1,"label":"SPrep - CCL"},{"from":1,"to":1,"level":2,"label":"Predicado verbal"},{"from":2,"to":4,"level":2,"label":"Predicado verbal"},{"from":0,"to":0,"level":3,"label":"Nx"},{"from":1,"to":1,"level":3,"label":"OSImp"},{"from":2,"to":4,"level":3,"label":"OSAI"},{"from":0,"to":4,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"nosotros"}]},
+  {"sentence":"Trabaja mucho para que no le falte nada","annotations":[{"from":0,"to":0,"level":1,"label":"SV - NP"},{"from":1,"to":1,"level":1,"label":"SAdv - CCM"},{"from":2,"to":2,"level":1,"label":"Nx"},{"from":3,"to":3,"level":1,"label":"Nx"},{"from":4,"to":4,"level":1,"label":"SAdv - CCM"},{"from":5,"to":5,"level":1,"label":"SN - CI"},{"from":6,"to":6,"level":1,"label":"SV - NP"},{"from":7,"to":7,"level":1,"label":"SN - NS"},{"from":0,"to":1,"level":2,"label":"Predicado verbal"},{"from":4,"to":6,"level":2,"label":"Predicado verbal"},{"from":7,"to":7,"level":2,"label":"Sujeto"},{"from":0,"to":1,"level":3,"label":"OSAI"},{"from":2,"to":3,"level":3,"label":"Nx"},{"from":4,"to":7,"level":3,"label":"OSAI"},{"from":0,"to":7,"level":4,"label":"O. Compuesta subordinada"}],"tacitSubjects":[{"scope":"P1","text":"él"}]}
+];
+
+// Mapa para buscar análisis por oración
+const PREBUILT_MAP = Object.fromEntries(PREBUILT.map(p => [p.sentence, p]));
+
 const EXAMPLES = [
-  { group: "Simple intransitiva", items: [
-    "Manuel estudia",
-    "Los niños juegan",
-    "El sol brilla",
-    "Mi hermana duerme",
-    "Los pájaros vuelan",
-  ]},
-  { group: "Simple transitiva", items: [
-    "Pablo escucha música",
-    "Ana lee un libro",
-    "El perro come carne",
-    "María compró flores",
-    "Los alumnos resolvieron el problema",
-  ]},
-  { group: "Simple con CI", items: [
-    "Le regalé un libro a mi hermano",
-    "El profesor explicó la lección a los alumnos",
-    "Te he comprado un helado",
-    "Mi madre cocinó la cena para nosotros",
-    "Le dije la verdad a Ana",
-  ]},
-  { group: "Simple con CC", items: [
-    "Vivimos en Madrid",
-    "Llegaré mañana",
-    "Los niños corren rápidamente",
-    "Estudio por las tardes",
-    "Trabajo en la oficina los lunes",
-  ]},
-  { group: "Predicado nominal (atributo)", items: [
-    "Manuel es estudiante",
-    "El cielo está nublado",
-    "María parece cansada",
-    "Mis amigos son simpáticos",
-    "Ese coche es rojo",
-  ]},
-  { group: "Pasiva (con C. Agente)", items: [
-    "El cuadro fue pintado por Picasso",
-    "La casa fue construida por mi abuelo",
-    "El premio fue entregado por el alcalde",
-    "Los exámenes serán corregidos por los profesores",
-    "La carta fue escrita por Ana",
-  ]},
-  { group: "Coordinada copulativa", items: [
-    "Manuel estudia y Pablo escucha música",
-    "Ana lee y María escribe",
-    "Mi padre cocina y mi madre limpia",
-    "Llovía e hicimos los deberes en casa",
-    "No fui al cine ni vi la película",
-  ]},
-  { group: "Coordinada adversativa", items: [
-    "Quería ir pero estaba cansado",
-    "El examen era difícil mas lo aprobé",
-    "No estudia en Madrid sino en Sevilla",
-    "Hace frío pero no llueve",
-    "Lo intenté mas no lo conseguí",
-  ]},
-  { group: "Coordinada disyuntiva", items: [
-    "¿Estudias o trabajas?",
-    "Vendrás conmigo o te quedarás en casa",
-    "Compra pan o trae galletas",
-    "O vienes ahora o te dejo aquí",
-    "¿Quieres té u otra bebida?",
-  ]},
-  { group: "Yuxtapuesta", items: [
-    "Llegué, vi, vencí",
-    "Unos cantaban, otros bailaban",
-    "Hace calor, abre la ventana",
-    "El cielo se nubló, empezó a llover",
-    "Ana cocina, Pablo limpia, María pone la mesa",
-  ]},
-  { group: "Subordinada sustantiva", items: [
-    "Quiero que vengas",
-    "Me alegra que hayas aprobado",
-    "Es necesario que estudies más",
-    "Dijo que llegaría tarde",
-    "Espero que tengas suerte",
-  ]},
-  { group: "Subordinada adjetiva (de relativo)", items: [
-    "El libro que compré es interesante",
-    "La casa donde vivo es grande",
-    "El profesor que nos enseña es muy bueno",
-    "La película que vimos ayer me gustó",
-    "Conozco al chico que está hablando",
-  ]},
-  { group: "Subordinada adverbial", items: [
-    "Cuando llegues, llámame",
-    "Si estudias aprobarás",
-    "Llegué tarde porque había mucho tráfico",
-    "Aunque llueva iremos al campo",
-    "Trabaja mucho para que no le falte nada",
-  ]},
+  { group: "Simple intransitiva", items: ["Manuel estudia","Los niños juegan","El sol brilla","Mi hermana duerme","Los pájaros vuelan"]},
+  { group: "Simple transitiva", items: ["Pablo escucha música","Ana lee un libro","El perro come carne","María compró flores","Los alumnos resolvieron el problema"]},
+  { group: "Simple con CI", items: ["Le regalé un libro a mi hermano","El profesor explicó la lección a los alumnos","Te he comprado un helado","Mi madre cocinó la cena para nosotros","Le dije la verdad a Ana"]},
+  { group: "Simple con CC", items: ["Vivimos en Madrid","Llegaré mañana","Los niños corren rápidamente","Estudio por las tardes","Trabajo en la oficina los lunes"]},
+  { group: "Predicado nominal (atributo)", items: ["Manuel es estudiante","El cielo está nublado","María parece cansada","Mis amigos son simpáticos","Ese coche es rojo"]},
+  { group: "Pasiva (con C. Agente)", items: ["El cuadro fue pintado por Picasso","La casa fue construida por mi abuelo","El premio fue entregado por el alcalde","Los exámenes serán corregidos por los profesores","La carta fue escrita por Ana"]},
+  { group: "Coordinada copulativa", items: ["Manuel estudia y Pablo escucha música","Ana lee y María escribe","Mi padre cocina y mi madre limpia","Llovía e hicimos los deberes en casa","No fui al cine ni vi la película"]},
+  { group: "Coordinada adversativa", items: ["Quería ir pero estaba cansado","El examen era difícil mas lo aprobé","No estudia en Madrid sino en Sevilla","Hace frío pero no llueve","Lo intenté mas no lo conseguí"]},
+  { group: "Coordinada disyuntiva", items: ["¿Estudias o trabajas?","Vendrás conmigo o te quedarás en casa","Compra pan o trae galletas","O vienes ahora o te dejo aquí","¿Quieres té u otra bebida?"]},
+  { group: "Yuxtapuesta", items: ["Llegué, vi, vencí","Unos cantaban, otros bailaban","Hace calor, abre la ventana","El cielo se nubló, empezó a llover","Ana cocina, Pablo limpia, María pone la mesa"]},
+  { group: "Subordinada sustantiva", items: ["Quiero que vengas","Me alegra que hayas aprobado","Es necesario que estudies más","Dijo que llegaría tarde","Espero que tengas suerte"]},
+  { group: "Subordinada adjetiva (de relativo)", items: ["El libro que compré es interesante","La casa donde vivo es grande","El profesor que nos enseña es muy bueno","La película que vimos ayer me gustó","Conozco al chico que está hablando"]},
+  { group: "Subordinada adverbial", items: ["Cuando llegues, llámame","Si estudias aprobarás","Llegué tarde porque había mucho tráfico","Aunque llueva iremos al campo","Trabaja mucho para que no le falte nada"]},
 ];
 
 function fillExamplesPicker() {
@@ -459,10 +452,12 @@ const LEVELS = [
     { text: "Predicado verbal",  color: "#16a34a" },
     { text: "Predicado nominal", color: "#16a34a" },
   ]},
-  { n: 3, name: "Proposición", labels: [
-    { text: "P1", color: "#111" },
-    { text: "P2", color: "#111" },
-    { text: "P3", color: "#111" },
+  { n: 3, name: "Tipo de proposición", labels: [
+    { text: "OSAT", color: "#111" },     // Oración Simple Activa Transitiva
+    { text: "OSAI", color: "#111" },     // Oración Simple Activa Intransitiva
+    { text: "OSImp", color: "#111" },    // Oración Simple Impersonal
+    { text: "OSCop", color: "#111" },    // Oración Simple Copulativa (Predicado Nominal)
+    { text: "OSP", color: "#111" },      // Oración Simple Pasiva
     { text: "Nx", color: "#a855f7" },
   ]},
   { n: 4, name: "Oración", labels: [
@@ -476,9 +471,19 @@ const LEVELS = [
 ];
 
 // ============ TOKENIZACIÓN Y RENDER ============
+function tokenize(text) {
+  // Separa los signos de puntuación como tokens propios.
+  // Ej.: "Llegué, vi, vencí" → ["Llegué", ",", "vi", ",", "vencí"]
+  return text
+    .replace(/([¿¡])/g, ' $1 ')
+    .replace(/([?!.,;:])/g, ' $1 ')
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
 function loadSentence() {
   const text = document.getElementById('sentenceInput').value.trim();
-  state.tokens = text.split(/\s+/).filter(Boolean);
+  state.tokens = tokenize(text);
   state.annotations = [];
   state.tacitSubjects = [];
   state.selection = { from: null, to: null };
@@ -969,8 +974,18 @@ Nivel 2 (funciones oracionales — SOLO tres etiquetas posibles, cada una en UNA
 Estas DEBEN aparecer en nivel 2 incluso cuando cubren el mismo rango que su etiqueta de nivel 1. Por ejemplo, si "Manuel" lleva "SN - NS" en nivel 1, TAMBIÉN debe llevar "Sujeto" en nivel 2 — eso NO es redundante, es lo correcto.
 Las únicas etiquetas que NO van a nivel 2 son los complementos del verbo (CD, CI, CCL, CCT, CCM, Atributo, C. Agente, C. Régimen): esos viven SOLO en nivel 1, fusionados con su sintagma.
 
-Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" (entre proposiciones). SOLO existen si la oración es compuesta. En oraciones simples, no se etiqueta nivel 3.
+Nivel 3 (TIPO de cada proposición — siempre se etiqueta, también en oraciones simples):
+- "OSAT" — Oración Simple Activa Transitiva (con CD)
+- "OSAI" — Oración Simple Activa Intransitiva (sin CD)
+- "OSImp" — Oración Simple Impersonal (verbos meteorológicos, "hay", etc., sin sujeto posible)
+- "OSCop" — Oración Simple Copulativa (ser/estar/parecer + atributo)
+- "OSP" — Oración Simple Pasiva (con C. Agente o pasiva refleja)
+- "Nx" entre proposiciones cuando hay nexo coordinante o subordinante
+Cada proposición lleva una de estas etiquetas según su naturaleza, en su rango exacto.
+
 Nivel 4 (oración global): tipo de oración. "O. Simple" si solo hay un verbo conjugado.
+
+TOKENIZACIÓN: los signos de puntuación (, . ; : ¿ ? ¡ !) son tokens separados. Por ejemplo "Llegué, vi, vencí" tiene 5 tokens: ["Llegué", ",", "vi", ",", "vencí"]. Las comas NO forman parte del rango del verbo.
 
 REGLA CRÍTICA SIMPLE vs COMPUESTA:
 Una oración es compuesta SOLO si hay más de un verbo conjugado en proposiciones distintas. Una conjunción coordinante (y, o, u, ni, pero, sino...) NO implica oración compuesta por sí sola: puede coordinar sintagmas dentro de una misma proposición.
@@ -1135,8 +1150,11 @@ Nivel 2 (funciones oracionales — solo tres etiquetas):
 NUNCA dividas el Predicado o el Sujeto en varias anotaciones de una sola palabra. Si el predicado abarca tokens 0-3, devuelve UNA anotación con from=0,to=3, NO cuatro anotaciones de una palabra cada una.
 Los complementos (CD, CI, CC, etc.) NO van en nivel 2.
 
-Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" entre proposiciones. SOLO existen si la oración es compuesta (más de una proposición). En oraciones simples, NO se etiqueta nivel 3.
+Nivel 3 (TIPO de cada proposición — una por proposición, siempre):
+- "OSAT" Activa Transitiva (con CD), "OSAI" Activa Intransitiva, "OSImp" Impersonal, "OSCop" Copulativa (ser/estar/parecer+atrib.), "OSP" Pasiva, "Nx" entre proposiciones.
 Nivel 4 (oración global): tipo de oración.
+
+TOKENIZACIÓN: los signos de puntuación (, . ; : ¿ ? ¡ !) son tokens SEPARADOS. Las comas NO van dentro del rango del verbo.
 
 REGLA CRÍTICA SOBRE COMPUESTAS vs SIMPLES:
 Una oración es compuesta SOLO si tiene más de un verbo conjugado en proposiciones distintas. Una conjunción coordinante (y, o, u, ni, pero...) NO implica oración compuesta por sí sola: puede coordinar elementos dentro de una misma proposición (sintagmas, complementos, etc.).
@@ -1272,6 +1290,30 @@ async function analyzeWithAI() {
   if (state.annotations.length && !confirm('Esto reemplazará tu análisis actual. ¿Continuar?')) return;
 
   const out = document.getElementById('aiOutput');
+
+  // Si la oración actual coincide con una del banco, cargar pre-hecho sin gastar IA
+  const tokensJoined = state.tokens.join(' ');
+  const prebuilt = PREBUILT.find(p => tokenize(p.sentence).join(' ') === tokensJoined);
+  if (prebuilt) {
+    state.annotations = prebuilt.annotations.map(a => ({
+      id: Date.now() + Math.random(),
+      from: a.from, to: a.to,
+      level: a.level,
+      label: a.label,
+      color: colorForLabel(a.level, a.label),
+    }));
+    state.tacitSubjects = (prebuilt.tacitSubjects || []).map(t => ({
+      id: Date.now() + Math.random(),
+      scope: t.scope || '',
+      text: t.text,
+    }));
+    state.aiReview = null;
+    state.selection = { from: null, to: null };
+    render();
+    out.innerHTML = `<div class="ai-head"><span class="badge ok">✓ Análisis pre-hecho</span><span>${prebuilt.annotations.length} anotaciones (sin coste de IA).</span></div>`;
+    return;
+  }
+
   out.innerHTML = '<div class="ai-fallback">Analizando...</div>';
 
   try {
