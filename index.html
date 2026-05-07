@@ -165,6 +165,7 @@
     <input id="aiKey" type="password" placeholder="Tu API key (se guarda solo en tu navegador)">
     <button onclick="saveKey()">Guardar clave</button>
     <button class="primary" onclick="reviewWithAI()">Revisar mi análisis</button>
+    <button onclick="analyzeWithAI()">Analizar con IA</button>
   </div>
   <div id="costBar">
     <span id="costLast">Última: —</span>
@@ -713,53 +714,11 @@ DEVUELVE EXCLUSIVAMENTE UN JSON (sin markdown, sin prosa fuera):
 }
 
 async function reviewWithAI() {
-  const provider = document.getElementById('aiProvider').value;
-  const key = localStorage.getItem('sintaxis_key_' + provider);
-  if (!key) { alert('Guarda primero tu API key.'); return; }
   if (!state.annotations.length) { alert('Haz al menos una anotación primero.'); return; }
-
   const out = document.getElementById('aiOutput');
-  out.textContent = 'Pensando...';
-
-  const prompt = buildPrompt();
-  const model = document.getElementById('aiModel').value;
+  out.innerHTML = '<div class="ai-fallback">Pensando...</div>';
   try {
-    let text, inTok = 0, outTok = 0;
-    if (provider === 'openai') {
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({
-          model,
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1,
-          response_format: { type: 'json_object' },
-        })
-      });
-      const j = await r.json();
-      if (j.error) throw new Error(j.error.message);
-      text = j.choices[0].message.content;
-      inTok = j.usage?.prompt_tokens || 0;
-      outTok = j.usage?.completion_tokens || 0;
-    } else {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
-        })
-      });
-      const j = await r.json();
-      if (j.error) throw new Error(j.error.message);
-      text = j.candidates[0].content.parts[0].text;
-      inTok = j.usageMetadata?.promptTokenCount || 0;
-      outTok = j.usageMetadata?.candidatesTokenCount || 0;
-    }
-    const cost = calcCost(model, inTok, outTok) ?? 0;
-    const total = parseFloat(localStorage.getItem('sintaxis_cost_total') || '0') + cost;
-    localStorage.setItem('sintaxis_cost_total', String(total));
-    updateCostUI({ model, inTok, outTok, cost });
+    const text = await callAI(buildPrompt());
     renderAIResult(text);
   } catch (err) {
     out.innerHTML = '';
@@ -819,6 +778,193 @@ function renderAIResult(raw) {
 
   out.innerHTML = html;
   render(); // Repinta para resaltar las erróneas
+}
+
+// ============ ANALIZAR CON IA ============
+function buildAnalysisPrompt(extraInstruction = '') {
+  return `Eres un analizador sintáctico del español. Vas a analizar una oración siguiendo una convención específica del estudiante.
+
+CONVENCIÓN ESTRICTA:
+
+Nivel 1 (sintagma + función fusionados, una etiqueta por palabra de contenido):
+- Verbo → "SV - NP" (cubre SOLO el verbo, nunca sus complementos)
+- Núcleo del sujeto → "SN - NS"
+- Complementos → su función fusionada con el sintagma: "SN - CD", "SPrep - CCL", etc.
+- Nexo coordinante → "Nx"
+- Determinantes y modificadores se absorben en el sintagma del complemento al que pertenecen (no llevan etiqueta propia).
+
+Nivel 2 (funciones oracionales — solo tres etiquetas):
+- "Sujeto" (cubre el SN del sujeto completo)
+- "Predicado verbal" (cubre el verbo + TODOS sus complementos)
+- "Predicado nominal"
+Los complementos (CD, CI, CC, etc.) NO van en nivel 2.
+
+Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" entre proposiciones.
+Nivel 4 (oración global): tipo de oración.
+
+ETIQUETAS VÁLIDAS (USA EXCLUSIVAMENTE ESTAS, NO INVENTES OTRAS):
+${JSON.stringify(validLabelsByLevel(), null, 2)}
+
+EJEMPLO de análisis correcto de "Manuel estudia y Pablo escucha música":
+[
+  {"from":0,"to":0,"level":1,"label":"SN - NS"},
+  {"from":1,"to":1,"level":1,"label":"SV - NP"},
+  {"from":2,"to":2,"level":1,"label":"Nx"},
+  {"from":3,"to":3,"level":1,"label":"SN - NS"},
+  {"from":4,"to":4,"level":1,"label":"SV - NP"},
+  {"from":5,"to":5,"level":1,"label":"SN - CD"},
+  {"from":0,"to":0,"level":2,"label":"Sujeto"},
+  {"from":1,"to":1,"level":2,"label":"Predicado verbal"},
+  {"from":3,"to":3,"level":2,"label":"Sujeto"},
+  {"from":4,"to":5,"level":2,"label":"Predicado verbal"},
+  {"from":0,"to":1,"level":3,"label":"P1"},
+  {"from":2,"to":2,"level":3,"label":"Nx"},
+  {"from":3,"to":5,"level":3,"label":"P2"},
+  {"from":0,"to":5,"level":4,"label":"O. Compuesta coordinada copulativa"}
+]
+
+ORACIÓN A ANALIZAR: "${state.tokens.join(' ')}"
+TOKENS (índice : palabra): ${JSON.stringify(state.tokens.map((t, i) => `${i}:${t}`))}
+
+${extraInstruction}
+
+DEVUELVE EXCLUSIVAMENTE UN JSON con este esquema (sin markdown, sin prosa fuera):
+{
+  "annotations": [
+    { "from": <idx>, "to": <idx>, "level": <1-4>, "label": "<una de las válidas>" }
+  ]
+}
+
+Reglas:
+- "from" y "to" son índices de tokens (inclusivos por ambos extremos).
+- Cada anotación debe usar una etiqueta EXACTA de la lista de válidas. NO inventes etiquetas.
+- Cubre los 4 niveles. No te saltes el nivel 4 (tipo de oración) ni el nivel 3 (proposiciones).
+- JSON válido. Nada más.`;
+}
+
+async function callAI(promptText) {
+  const provider = document.getElementById('aiProvider').value;
+  const key = localStorage.getItem('sintaxis_key_' + provider);
+  if (!key) throw new Error('Guarda primero tu API key.');
+  const model = document.getElementById('aiModel').value;
+  let text, inTok = 0, outTok = 0;
+  if (provider === 'openai') {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: promptText }],
+        temperature: 0.1,
+        response_format: { type: 'json_object' },
+      })
+    });
+    const j = await r.json();
+    if (j.error) throw new Error(j.error.message);
+    text = j.choices[0].message.content;
+    inTok = j.usage?.prompt_tokens || 0;
+    outTok = j.usage?.completion_tokens || 0;
+  } else {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
+      })
+    });
+    const j = await r.json();
+    if (j.error) throw new Error(j.error.message);
+    text = j.candidates[0].content.parts[0].text;
+    inTok = j.usageMetadata?.promptTokenCount || 0;
+    outTok = j.usageMetadata?.candidatesTokenCount || 0;
+  }
+  const cost = calcCost(model, inTok, outTok) ?? 0;
+  const total = parseFloat(localStorage.getItem('sintaxis_cost_total') || '0') + cost;
+  localStorage.setItem('sintaxis_cost_total', String(total));
+  updateCostUI({ model, inTok, outTok, cost });
+  return text;
+}
+
+function validLabelSetByLevel() {
+  const map = {};
+  LEVELS.forEach(L => { map[L.n] = new Set(L.labels.map(x => x.text)); });
+  return map;
+}
+
+function colorForLabel(level, label) {
+  const L = LEVELS.find(x => x.n === level);
+  if (!L) return '#111';
+  const found = L.labels.find(x => x.text === label);
+  return found ? found.color : '#111';
+}
+
+async function analyzeWithAI() {
+  if (!state.tokens.length) { alert('Carga primero una oración.'); return; }
+  if (state.annotations.length && !confirm('Esto reemplazará tu análisis actual. ¿Continuar?')) return;
+
+  const out = document.getElementById('aiOutput');
+  out.innerHTML = '<div class="ai-fallback">Analizando...</div>';
+
+  try {
+    let raw = await callAI(buildAnalysisPrompt());
+    let parsed = parseAnalysisJSON(raw);
+    let invalid = findInvalidLabels(parsed);
+
+    if (invalid.length) {
+      // Reintento: le decimos qué etiquetas usó mal y le pedimos reemplazo
+      const retryInstruction = `IMPORTANTE: en tu intento anterior usaste estas etiquetas que NO existen en la lista de válidas: ${JSON.stringify(invalid)}. Reemplázalas por la etiqueta correcta de la lista, o si la palabra no debe etiquetarse en ese nivel, omítela. Repite el análisis completo.`;
+      raw = await callAI(buildAnalysisPrompt(retryInstruction));
+      parsed = parseAnalysisJSON(raw);
+      invalid = findInvalidLabels(parsed);
+    }
+
+    // Cargar las anotaciones válidas en el estado
+    const validSet = validLabelSetByLevel();
+    const valid = parsed.annotations.filter(a =>
+      Number.isInteger(a.from) && Number.isInteger(a.to) &&
+      a.from >= 0 && a.to < state.tokens.length && a.from <= a.to &&
+      [1,2,3,4].includes(a.level) &&
+      validSet[a.level].has(a.label)
+    );
+
+    state.annotations = valid.map(a => ({
+      id: Date.now() + Math.random(),
+      from: a.from, to: a.to,
+      level: a.level,
+      label: a.label,
+      color: colorForLabel(a.level, a.label),
+    }));
+    state.aiReview = null;
+    state.selection = { from: null, to: null };
+    render();
+
+    const dropped = parsed.annotations.length - valid.length;
+    out.innerHTML = `<div class="ai-head"><span class="badge ok">✓ Análisis cargado</span><span>${valid.length} anotaciones${dropped ? ` (${dropped} descartadas por etiqueta inválida tras reintento)` : ''}.</span></div>`;
+  } catch (err) {
+    out.innerHTML = '';
+    out.textContent = 'Error: ' + err.message;
+  }
+}
+
+function parseAnalysisJSON(raw) {
+  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  const data = JSON.parse(cleaned);
+  if (!data.annotations || !Array.isArray(data.annotations)) {
+    throw new Error('La respuesta no contiene "annotations".');
+  }
+  return data;
+}
+
+function findInvalidLabels(parsed) {
+  const validSet = validLabelSetByLevel();
+  const bad = [];
+  parsed.annotations.forEach(a => {
+    if (!validSet[a.level] || !validSet[a.level].has(a.label)) {
+      bad.push({ level: a.level, label: a.label });
+    }
+  });
+  return bad;
 }
 
 function escapeHTML(s) {
