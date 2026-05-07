@@ -87,6 +87,33 @@
     border-radius: 2px; margin-right: 6px; vertical-align: middle;
   }
 
+  .tacit-list {
+    margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;
+    justify-content: center;
+  }
+  .tacit-chip {
+    font-size: 13px; color: #555;
+    background: #f3f4f6; padding: 4px 8px; border-radius: 4px;
+    display: inline-flex; gap: 6px; align-items: center;
+  }
+  .tacit-chip button {
+    border: none; background: none; cursor: pointer; color: #999;
+    padding: 0; font-size: 14px; line-height: 1;
+  }
+  .tacit-chip button:hover { color: #b91c1c; }
+  .tacit-chip .scope { color: #888; font-size: 11px; }
+
+  .tacit-add {
+    margin-top: 12px; display: flex; gap: 8px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .tacit-add label { font-size: 13px; font-weight: 600; }
+  .tacit-add select, .tacit-add input {
+    padding: 6px 8px; font-size: 13px;
+    border: 1px solid #ccc; border-radius: 4px;
+  }
+  .tacit-add input { flex: 1; min-width: 160px; }
+
   .level-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
   .level-tabs button { font-size: 12px; padding: 4px 8px; }
   .level-tabs button.active { background: #2563eb; color: white; border-color: #2563eb; }
@@ -153,6 +180,7 @@
 <div class="canvas" id="canvas">
   <div class="sentence-row" id="sentenceRow"></div>
   <svg class="lines" id="svg" width="100%" height="200"></svg>
+  <div class="tacit-list" id="tacitList"></div>
 </div>
 
 <div class="panel">
@@ -161,6 +189,18 @@
 
   <div class="level-tabs" id="levelTabs"></div>
   <div class="label-grid" id="labelGrid"></div>
+
+  <div class="tacit-add">
+    <label>Sujeto tácito:</label>
+    <select id="tacitScope">
+      <option value="">Toda la oración</option>
+      <option value="P1">P1</option>
+      <option value="P2">P2</option>
+      <option value="P3">P3</option>
+    </select>
+    <input id="tacitText" type="text" placeholder="Ej: él, yo, ellos…" onkeydown="if(event.key==='Enter') addTacit()">
+    <button onclick="addTacit()">Añadir</button>
+  </div>
 </div>
 
 <div class="panel">
@@ -314,6 +354,7 @@ function randomExample() {
 let state = {
   tokens: [],
   annotations: [], // { id, from, to, level, label, color }
+  tacitSubjects: [], // { id, scope: "" | "P1" | "P2" | ..., text }
   selection: { from: null, to: null },
   currentLevel: 1,
 };
@@ -370,6 +411,7 @@ function loadSentence() {
   const text = document.getElementById('sentenceInput').value.trim();
   state.tokens = text.split(/\s+/).filter(Boolean);
   state.annotations = [];
+  state.tacitSubjects = [];
   state.selection = { from: null, to: null };
   render();
 }
@@ -378,6 +420,35 @@ function render() {
   renderTokens();
   renderLines();
   renderLabelPicker();
+  renderTacit();
+}
+
+function renderTacit() {
+  const list = document.getElementById('tacitList');
+  list.innerHTML = '';
+  state.tacitSubjects.forEach(t => {
+    const chip = document.createElement('span');
+    chip.className = 'tacit-chip';
+    const scope = t.scope ? `<span class="scope">(${t.scope})</span>` : '';
+    chip.innerHTML = `Sujeto tácito${scope}: ${escapeHTML(t.text)} <button title="Quitar" data-id="${t.id}">×</button>`;
+    chip.querySelector('button').onclick = () => {
+      state.tacitSubjects = state.tacitSubjects.filter(x => x.id !== t.id);
+      render();
+    };
+    list.appendChild(chip);
+  });
+}
+
+function addTacit() {
+  const text = document.getElementById('tacitText').value.trim();
+  if (!text) return;
+  const scope = document.getElementById('tacitScope').value;
+  state.tacitSubjects.push({
+    id: Date.now() + Math.random(),
+    scope, text,
+  });
+  document.getElementById('tacitText').value = '';
+  render();
 }
 
 function renderTokens() {
@@ -550,6 +621,7 @@ function exportJSON() {
     sentence: state.tokens.join(' '),
     tokens: state.tokens,
     annotations: state.annotations,
+    tacitSubjects: state.tacitSubjects,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -568,6 +640,7 @@ function importJSON() {
       const data = JSON.parse(ev.target.result);
       state.tokens = data.tokens;
       state.annotations = data.annotations || [];
+      state.tacitSubjects = data.tacitSubjects || [];
       document.getElementById('sentenceInput').value = data.sentence || data.tokens.join(' ');
       render();
     };
@@ -579,6 +652,7 @@ function importJSON() {
 function clearAll() {
   if (!confirm('¿Borrar todo el análisis?')) return;
   state.annotations = [];
+  state.tacitSubjects = [];
   state.selection = { from: null, to: null };
   render();
 }
@@ -636,11 +710,18 @@ function exportSVG() {
 
   const linesSvg = svgInner.innerHTML;
 
+  const tacitLines = state.tacitSubjects.map((t, i) => {
+    const scope = t.scope ? ` (${t.scope})` : '';
+    return `<text x="${totalWidth/2}" y="${linesHeight + 24 + i * 18}" text-anchor="middle" font-size="13" font-family="-apple-system, sans-serif" fill="#555">Sujeto tácito${escapeXML(scope)}: ${escapeXML(t.text)}</text>`;
+  }).join('');
+  const tacitHeight = state.tacitSubjects.length * 18 + (state.tacitSubjects.length ? 16 : 0);
+  const finalHeight = totalHeight + tacitHeight;
+
   const svg =
-`<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}">
+`<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${finalHeight}" viewBox="0 0 ${totalWidth} ${finalHeight}">
   <rect width="100%" height="100%" fill="white"/>
   <g transform="translate(0,0)">${tokens}</g>
-  <g transform="translate(0,${wordsHeight})" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">${linesSvg}</g>
+  <g transform="translate(0,${wordsHeight})" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">${linesSvg}${tacitLines}</g>
 </svg>`;
 
   const blob = new Blob([svg], { type: 'image/svg+xml' });
@@ -832,6 +913,9 @@ TOKENS: ${JSON.stringify(state.tokens.map((t, i) => `${i}:${t}`))}
 ANÁLISIS DEL ESTUDIANTE:
 ${JSON.stringify(annotated, null, 2)}
 
+SUJETOS TÁCITOS QUE EL ESTUDIANTE HA MARCADO:
+${JSON.stringify(state.tacitSubjects.map(t => ({ ámbito: t.scope || 'oración entera', texto: t.text })), null, 2)}
+
 DEVUELVE EXCLUSIVAMENTE UN JSON (sin markdown, sin prosa fuera):
 {
   "veredicto": "ok" | "con_errores",
@@ -979,13 +1063,18 @@ DEVUELVE EXCLUSIVAMENTE UN JSON con este esquema (sin markdown, sin prosa fuera)
 {
   "annotations": [
     { "from": <idx>, "to": <idx>, "level": <1-4>, "label": "<una de las válidas>" }
+  ],
+  "tacitSubjects": [
+    { "scope": "" | "P1" | "P2" | "P3", "text": "él" }
   ]
 }
 
 Reglas:
 - "from" y "to" son índices de tokens (inclusivos por ambos extremos).
 - Cada anotación debe usar una etiqueta EXACTA de la lista de válidas. NO inventes etiquetas.
-- Cubre los 4 niveles. No te saltes el nivel 4 (tipo de oración) ni el nivel 3 (proposiciones).
+- Cubre los niveles necesarios. NO te saltes el nivel 4 (tipo de oración). En oraciones simples NO pongas nivel 3.
+- Si una proposición no tiene SN-NS explícito porque el sujeto está omitido, añade un sujeto tácito en "tacitSubjects" indicando el pronombre (él, ella, yo, tú, ellos…). Para oraciones simples deja "scope" como "" (toda la oración); para compuestas usa "P1", "P2", etc.
+- Si NO hay sujetos tácitos, deja "tacitSubjects" como [].
 - JSON válido. Nada más.`;
 }
 
@@ -1082,6 +1171,13 @@ async function analyzeWithAI() {
       label: a.label,
       color: colorForLabel(a.level, a.label),
     }));
+    state.tacitSubjects = (parsed.tacitSubjects || [])
+      .filter(t => t && typeof t.text === 'string' && t.text.trim())
+      .map(t => ({
+        id: Date.now() + Math.random(),
+        scope: typeof t.scope === 'string' ? t.scope : '',
+        text: t.text.trim(),
+      }));
     state.aiReview = null;
     state.selection = { from: null, to: null };
     render();
