@@ -2,6 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sintaxis">
 <title>Análisis sintáctico</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
@@ -10,6 +14,12 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     margin: 0; padding: 24px;
     background: #fafafa; color: #222;
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (max-width: 900px) {
+    body { padding: 12px; }
+    .canvas { padding: 24px 12px !important; }
+    .sentence-row { padding: 0 40px !important; gap: 12px !important; }
   }
   h1 { margin: 0 0 16px; font-size: 20px; }
   .toolbar {
@@ -30,7 +40,38 @@
     padding: 8px 14px; font-size: 14px;
     border: 1px solid #ccc; background: white;
     border-radius: 6px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
+  /* Targets táctiles más grandes */
+  @media (hover: none) and (pointer: coarse) {
+    button { padding: 10px 16px; font-size: 15px; min-height: 44px; }
+    .label-btn { padding: 10px 12px !important; font-size: 14px !important; min-height: 44px; }
+    .toolbar select, .ai-panel select, .ai-panel input { min-height: 44px; }
+    input[type=text] { min-height: 44px; }
+  }
+
+  .more-menu { position: relative; }
+  .more-menu summary {
+    padding: 8px 14px; font-size: 14px;
+    border: 1px solid #ccc; background: white;
+    border-radius: 6px; cursor: pointer;
+    list-style: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .more-menu summary::-webkit-details-marker { display: none; }
+  .more-menu[open] summary { background: #f3f4f6; }
+  .more-menu-content {
+    position: absolute; top: calc(100% + 4px); right: 0;
+    background: white; border: 1px solid #ddd; border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 6px; display: flex; flex-direction: column; gap: 4px;
+    z-index: 10; min-width: 180px;
+  }
+  .more-menu-content button {
+    text-align: left; border: none; background: none;
+    padding: 8px 10px; border-radius: 4px;
+  }
+  .more-menu-content button:hover { background: #f3f4f6; }
   button:hover { background: #f0f0f0; }
   button.primary { background: #2563eb; color: white; border-color: #2563eb; }
   button.primary:hover { background: #1d4ed8; }
@@ -115,14 +156,27 @@
   }
   .tacit-add input { flex: 1; min-width: 160px; }
 
+  .selection-actions {
+    display: flex; gap: 8px; align-items: center;
+    margin: 4px 0 12px; flex-wrap: wrap;
+  }
+  .selection-actions button {
+    padding: 8px 12px; font-size: 13px;
+  }
+  #extendBtn.active {
+    background: #fde68a; border-color: #f59e0b; color: #92400e;
+  }
+  .selection-info { font-size: 12px; color: #666; }
+
   .level-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
   .level-tabs button { font-size: 12px; padding: 4px 8px; }
   .level-tabs button.active { background: #2563eb; color: white; border-color: #2563eb; }
 
   .ai-panel { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .ai-panel input[type=password] {
-    padding: 6px 10px; font-size: 13px;
-    border: 1px solid #ccc; border-radius: 4px; width: 280px;
+    padding: 6px 10px; font-size: 14px;
+    border: 1px solid #ccc; border-radius: 4px;
+    flex: 1 1 240px; min-width: 200px;
   }
   .ai-panel select {
     padding: 6px 10px; font-size: 13px;
@@ -171,11 +225,16 @@
   </select>
   <button onclick="randomExample()" title="Oración aleatoria">🎲</button>
   <button class="primary" onclick="loadSentence()">Cargar</button>
-  <button onclick="exportPNG()">Exportar PNG</button>
-  <button onclick="exportSVG()">Exportar SVG</button>
-  <button onclick="exportJSON()">Exportar JSON</button>
-  <button onclick="importJSON()">Importar JSON</button>
-  <button class="danger" onclick="clearAll()">Limpiar análisis</button>
+  <details class="more-menu">
+    <summary>Más ⋯</summary>
+    <div class="more-menu-content">
+      <button onclick="exportPNG()">Exportar PNG</button>
+      <button onclick="exportSVG()">Exportar SVG</button>
+      <button onclick="exportJSON()">Exportar JSON</button>
+      <button onclick="importJSON()">Importar JSON</button>
+      <button class="danger" onclick="clearAll()">Limpiar análisis</button>
+    </div>
+  </details>
 </div>
 
 <div class="canvas" id="canvas">
@@ -186,7 +245,13 @@
 
 <div class="panel">
   <h3>Añadir anotación al rango seleccionado</h3>
-  <div class="hint">1) Haz clic en una palabra y luego shift+clic en otra para seleccionar un rango.  2) Elige nivel y etiqueta.</div>
+  <div class="hint">Toca una palabra; para seleccionar un rango, pulsa <b>+ Extender</b> y luego toca la última palabra. (Atajo escritorio: shift+clic)</div>
+
+  <div class="selection-actions">
+    <button id="extendBtn" onclick="toggleExtend()">+ Extender selección</button>
+    <button onclick="undoLastAnnotation()">↶ Borrar última anotación</button>
+    <span id="selectionInfo" class="selection-info"></span>
+  </div>
 
   <div class="level-tabs" id="levelTabs"></div>
   <div class="label-grid" id="labelGrid"></div>
@@ -357,6 +422,7 @@ let state = {
   annotations: [], // { id, from, to, level, label, color }
   tacitSubjects: [], // { id, scope: "" | "P1" | "P2" | ..., text }
   selection: { from: null, to: null },
+  extendNext: false, // si true, el siguiente tap extenderá el rango (modo táctil)
   currentLevel: 1,
 };
 
@@ -422,6 +488,37 @@ function render() {
   renderLines();
   renderLabelPicker();
   renderTacit();
+  renderSelectionActions();
+}
+
+function renderSelectionActions() {
+  const btn = document.getElementById('extendBtn');
+  if (btn) btn.classList.toggle('active', !!state.extendNext);
+  const info = document.getElementById('selectionInfo');
+  if (info) {
+    if (state.selection.from === null) {
+      info.textContent = state.extendNext ? 'Toca la primera palabra del rango.' : '';
+    } else {
+      const from = Math.min(state.selection.from, state.selection.to);
+      const to = Math.max(state.selection.from, state.selection.to);
+      const txt = state.tokens.slice(from, to + 1).join(' ');
+      info.textContent = state.extendNext
+        ? `Selección: "${txt}". Toca otra palabra para extender.`
+        : `Selección: "${txt}".`;
+    }
+  }
+}
+
+function toggleExtend() {
+  state.extendNext = !state.extendNext;
+  render();
+}
+
+function undoLastAnnotation() {
+  if (!state.annotations.length) return;
+  state.annotations.pop();
+  state.aiReview = null;
+  render();
 }
 
 function renderTacit() {
@@ -464,8 +561,12 @@ function renderTokens() {
       span.classList.add('selected');
     }
     span.onclick = (e) => {
-      if (e.shiftKey && state.selection.from !== null) {
+      // Si está activo el modo "extender", el siguiente tap añade al rango.
+      // Si no, tap = nueva selección puntual. Shift+clic también extiende (desktop).
+      const hasSel = state.selection.from !== null;
+      if ((e.shiftKey || state.extendNext) && hasSel) {
         state.selection.to = i;
+        state.extendNext = false;
       } else {
         state.selection.from = i;
         state.selection.to = i;
