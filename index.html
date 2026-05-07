@@ -781,8 +781,14 @@ Nivel 2 (funciones oracionales — SOLO tres etiquetas posibles):
 Estas DEBEN aparecer en nivel 2 incluso cuando cubren el mismo rango que su etiqueta de nivel 1. Por ejemplo, si "Manuel" lleva "SN - NS" en nivel 1, TAMBIÉN debe llevar "Sujeto" en nivel 2 — eso NO es redundante, es lo correcto.
 Las únicas etiquetas que NO van a nivel 2 son los complementos del verbo (CD, CI, CCL, CCT, CCM, Atributo, C. Agente, C. Régimen): esos viven SOLO en nivel 1, fusionados con su sintagma.
 
-Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" (entre proposiciones).
-Nivel 4 (oración global): tipo de oración.
+Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" (entre proposiciones). SOLO existen si la oración es compuesta. En oraciones simples, no se etiqueta nivel 3.
+Nivel 4 (oración global): tipo de oración. "O. Simple" si solo hay un verbo conjugado.
+
+REGLA CRÍTICA SIMPLE vs COMPUESTA:
+Una oración es compuesta SOLO si hay más de un verbo conjugado en proposiciones distintas. Una conjunción coordinante (y, o, u, ni, pero, sino...) NO implica oración compuesta por sí sola: puede coordinar sintagmas dentro de una misma proposición.
+- "Quieres té o café" → SIMPLE. "o" coordina dos SN-CD. NO P1/P2.
+- "Quieres té y yo quiero café" → COMPUESTA. SÍ P1/P2.
+- "Canta y baila" → SIMPLE (mismo sujeto, núcleo verbal compuesto). NO P1/P2.
 
 REGLAS CRÍTICAS:
 - En nivel 1 NO existe un "SV" que cubra el predicado entero. El predicado completo solo existe como "Predicado verbal" en nivel 2.
@@ -931,8 +937,17 @@ Nivel 2 (funciones oracionales — solo tres etiquetas):
 - "Predicado nominal"
 Los complementos (CD, CI, CC, etc.) NO van en nivel 2.
 
-Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" entre proposiciones.
+Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" entre proposiciones. SOLO existen si la oración es compuesta (más de una proposición). En oraciones simples, NO se etiqueta nivel 3.
 Nivel 4 (oración global): tipo de oración.
+
+REGLA CRÍTICA SOBRE COMPUESTAS vs SIMPLES:
+Una oración es compuesta SOLO si tiene más de un verbo conjugado en proposiciones distintas. Una conjunción coordinante (y, o, u, ni, pero...) NO implica oración compuesta por sí sola: puede coordinar elementos dentro de una misma proposición (sintagmas, complementos, etc.).
+
+Ejemplos:
+- "Quieres té o café" → SIMPLE. Hay un solo verbo ("quieres"). "o" coordina dos SN-CD ("té" y "café") dentro del mismo predicado. NO marcar P1/P2; la oración es "O. Simple".
+- "Quieres té y yo quiero café" → COMPUESTA. Hay dos verbos conjugados en proposiciones distintas. SÍ marcar P1/P2 y "O. Compuesta coordinada copulativa".
+- "Canta y baila" → SIMPLE con núcleo verbal compuesto. Mismo sujeto omitido. NO marcar P1/P2.
+- "Llegué tarde porque había tráfico" → COMPUESTA (subordinada): dos verbos.
 
 ETIQUETAS VÁLIDAS (USA EXCLUSIVAMENTE ESTAS, NO INVENTES OTRAS):
 ${JSON.stringify(validLabelsByLevel(), null, 2)}
