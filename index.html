@@ -859,10 +859,10 @@ Nivel 1 (sintagma + función fusionados, una etiqueta POR PALABRA):
 - Nexo coordinante → "Nx"
 - Los determinantes/modificadores NO llevan etiqueta propia; quedan absorbidos en el sintagma del complemento al que pertenecen.
 
-Nivel 2 (funciones oracionales — SOLO tres etiquetas posibles):
-- "Sujeto"
-- "Predicado verbal"
-- "Predicado nominal"
+Nivel 2 (funciones oracionales — SOLO tres etiquetas posibles, cada una en UNA SOLA anotación que cubra todo su rango):
+- "Sujeto" (un único rango cubriendo todo el sintagma del sujeto)
+- "Predicado verbal" (un único rango cubriendo verbo + TODOS sus complementos)
+- "Predicado nominal" (un único rango cubriendo verbo copulativo + atributo + complementos)
 Estas DEBEN aparecer en nivel 2 incluso cuando cubren el mismo rango que su etiqueta de nivel 1. Por ejemplo, si "Manuel" lleva "SN - NS" en nivel 1, TAMBIÉN debe llevar "Sujeto" en nivel 2 — eso NO es redundante, es lo correcto.
 Las únicas etiquetas que NO van a nivel 2 son los complementos del verbo (CD, CI, CCL, CCT, CCM, Atributo, C. Agente, C. Régimen): esos viven SOLO en nivel 1, fusionados con su sintagma.
 
@@ -1020,9 +1020,10 @@ Nivel 1 (sintagma + función fusionados, una etiqueta por palabra de contenido):
 - Determinantes y modificadores se absorben en el sintagma del complemento al que pertenecen (no llevan etiqueta propia).
 
 Nivel 2 (funciones oracionales — solo tres etiquetas):
-- "Sujeto" (cubre el SN del sujeto completo)
-- "Predicado verbal" (cubre el verbo + TODOS sus complementos)
-- "Predicado nominal"
+- "Sujeto" — UNA SOLA anotación que cubra TODO el sintagma del sujeto.
+- "Predicado verbal" — UNA SOLA anotación que cubra el verbo + TODOS sus complementos juntos en un único rango.
+- "Predicado nominal" — UNA SOLA anotación que cubra el verbo copulativo + atributo + complementos.
+NUNCA dividas el Predicado o el Sujeto en varias anotaciones de una sola palabra. Si el predicado abarca tokens 0-3, devuelve UNA anotación con from=0,to=3, NO cuatro anotaciones de una palabra cada una.
 Los complementos (CD, CI, CC, etc.) NO van en nivel 2.
 
 Nivel 3 (proposiciones): "P1", "P2", "P3", "Nx" entre proposiciones. SOLO existen si la oración es compuesta (más de una proposición). En oraciones simples, NO se etiqueta nivel 3.
