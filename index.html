@@ -21,6 +21,11 @@
     padding: 8px 12px; font-size: 16px;
     border: 1px solid #ccc; border-radius: 6px;
   }
+  .toolbar select {
+    padding: 8px 10px; font-size: 14px;
+    border: 1px solid #ccc; border-radius: 6px; background: white;
+    cursor: pointer; max-width: 220px;
+  }
   button {
     padding: 8px 14px; font-size: 14px;
     border: 1px solid #ccc; background: white;
@@ -133,6 +138,10 @@
 
 <div class="toolbar">
   <input id="sentenceInput" type="text" placeholder="Escribe una oración..." value="Manuel estudia y Pablo escucha música">
+  <select id="examplePicker" onchange="pickExample(this.value)" title="Ejemplos">
+    <option value="">Ejemplos ▾</option>
+  </select>
+  <button onclick="randomExample()" title="Oración aleatoria">🎲</button>
   <button class="primary" onclick="loadSentence()">Cargar</button>
   <button onclick="exportPNG()">Exportar PNG</button>
   <button onclick="exportSVG()">Exportar SVG</button>
@@ -178,6 +187,129 @@
 </div>
 
 <script>
+// ============ BANCO DE ORACIONES ============
+const EXAMPLES = [
+  { group: "Simple intransitiva", items: [
+    "Manuel estudia",
+    "Los niños juegan",
+    "El sol brilla",
+    "Mi hermana duerme",
+    "Los pájaros vuelan",
+  ]},
+  { group: "Simple transitiva", items: [
+    "Pablo escucha música",
+    "Ana lee un libro",
+    "El perro come carne",
+    "María compró flores",
+    "Los alumnos resolvieron el problema",
+  ]},
+  { group: "Simple con CI", items: [
+    "Le regalé un libro a mi hermano",
+    "El profesor explicó la lección a los alumnos",
+    "Te he comprado un helado",
+    "Mi madre cocinó la cena para nosotros",
+    "Le dije la verdad a Ana",
+  ]},
+  { group: "Simple con CC", items: [
+    "Vivimos en Madrid",
+    "Llegaré mañana",
+    "Los niños corren rápidamente",
+    "Estudio por las tardes",
+    "Trabajo en la oficina los lunes",
+  ]},
+  { group: "Predicado nominal (atributo)", items: [
+    "Manuel es estudiante",
+    "El cielo está nublado",
+    "María parece cansada",
+    "Mis amigos son simpáticos",
+    "Ese coche es rojo",
+  ]},
+  { group: "Pasiva (con C. Agente)", items: [
+    "El cuadro fue pintado por Picasso",
+    "La casa fue construida por mi abuelo",
+    "El premio fue entregado por el alcalde",
+    "Los exámenes serán corregidos por los profesores",
+    "La carta fue escrita por Ana",
+  ]},
+  { group: "Coordinada copulativa", items: [
+    "Manuel estudia y Pablo escucha música",
+    "Ana lee y María escribe",
+    "Mi padre cocina y mi madre limpia",
+    "Llovía e hicimos los deberes en casa",
+    "No fui al cine ni vi la película",
+  ]},
+  { group: "Coordinada adversativa", items: [
+    "Quería ir pero estaba cansado",
+    "El examen era difícil mas lo aprobé",
+    "No estudia en Madrid sino en Sevilla",
+    "Hace frío pero no llueve",
+    "Lo intenté mas no lo conseguí",
+  ]},
+  { group: "Coordinada disyuntiva", items: [
+    "¿Estudias o trabajas?",
+    "Vendrás conmigo o te quedarás en casa",
+    "Compra pan o trae galletas",
+    "O vienes ahora o te dejo aquí",
+    "¿Quieres té u otra bebida?",
+  ]},
+  { group: "Yuxtapuesta", items: [
+    "Llegué, vi, vencí",
+    "Unos cantaban, otros bailaban",
+    "Hace calor, abre la ventana",
+    "El cielo se nubló, empezó a llover",
+    "Ana cocina, Pablo limpia, María pone la mesa",
+  ]},
+  { group: "Subordinada sustantiva", items: [
+    "Quiero que vengas",
+    "Me alegra que hayas aprobado",
+    "Es necesario que estudies más",
+    "Dijo que llegaría tarde",
+    "Espero que tengas suerte",
+  ]},
+  { group: "Subordinada adjetiva (de relativo)", items: [
+    "El libro que compré es interesante",
+    "La casa donde vivo es grande",
+    "El profesor que nos enseña es muy bueno",
+    "La película que vimos ayer me gustó",
+    "Conozco al chico que está hablando",
+  ]},
+  { group: "Subordinada adverbial", items: [
+    "Cuando llegues, llámame",
+    "Si estudias aprobarás",
+    "Llegué tarde porque había mucho tráfico",
+    "Aunque llueva iremos al campo",
+    "Trabaja mucho para que no le falte nada",
+  ]},
+];
+
+function fillExamplesPicker() {
+  const sel = document.getElementById('examplePicker');
+  EXAMPLES.forEach(g => {
+    const og = document.createElement('optgroup');
+    og.label = g.group;
+    g.items.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+}
+
+function pickExample(sentence) {
+  if (!sentence) return;
+  document.getElementById('sentenceInput').value = sentence;
+  loadSentence();
+  document.getElementById('examplePicker').value = '';
+}
+
+function randomExample() {
+  const all = EXAMPLES.flatMap(g => g.items);
+  const pick = all[Math.floor(Math.random() * all.length)];
+  document.getElementById('sentenceInput').value = pick;
+  loadSentence();
+}
+
 // ============ MODELO DE DATOS ============
 let state = {
   tokens: [],
@@ -974,6 +1106,7 @@ function escapeHTML(s) {
 }
 
 // ============ INIT ============
+fillExamplesPicker();
 loadSentence();
 updateCostUI();
 window.addEventListener('resize', renderLines);
