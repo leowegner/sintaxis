@@ -446,7 +446,7 @@ const LEVELS = [
     { text: "Predicado verbal",  color: "#16a34a" },
     { text: "Predicado nominal", color: "#16a34a" },
   ]},
-  { n: 3, name: "Tipo de proposición", labels: [
+  { n: 3, name: "Clasificación", labels: [
     { text: "OSAT", color: "#111" },          // Oración Simple Activa Transitiva
     { text: "OSAI", color: "#111" },          // Oración Simple Activa Intransitiva
     { text: "OSImp", color: "#111" },         // Oración Simple Impersonal
@@ -1166,7 +1166,7 @@ Una oración es compuesta SOLO si tiene más de un verbo conjugado en proposicio
 
 Ejemplos:
 - "Quieres té o café" → SIMPLE. Hay un solo verbo ("quieres"). "o" coordina dos SN-CD ("té" y "café") dentro del mismo predicado. NO marcar P1/P2; la oración es "O. Simple".
-- "Quieres té y yo quiero café" → COMPUESTA. Hay dos verbos conjugados en proposiciones distintas. SÍ marcar P1/P2 y "O. Compuesta coordinada copulativa".
+- "Quieres té y yo quiero café" → COMPUESTA. Hay dos verbos conjugados en proposiciones distintas. Cada proposición se clasifica en nivel 3 (OSAT/OSAI/etc.) y el global en nivel 4 ("O. Compuesta coordinada copulativa").
 - "Canta y baila" → SIMPLE con núcleo verbal compuesto. Mismo sujeto omitido. NO marcar P1/P2.
 - "Llegué tarde porque había tráfico" → COMPUESTA (subordinada): dos verbos.
 
@@ -1228,7 +1228,7 @@ Reglas:
 - Cada anotación debe usar una etiqueta EXACTA de la lista de válidas. NO inventes etiquetas.
 - Cubre los niveles necesarios. NO te saltes el nivel 4 (tipo de oración). En oraciones simples NO pongas nivel 3.
 - OBLIGATORIO: si una proposición tiene un verbo conjugado pero NINGÚN SN-NS explícito en su rango, debes añadir un sujeto tácito en "tacitSubjects" deduciéndolo de la desinencia verbal (yo/tú/él/ella/nosotros/vosotros/ellos…). En ese caso NO inventes un SN-NS ni un "Sujeto" de nivel 2; el sujeto va SOLO en tacitSubjects.
-- Para oraciones simples con sujeto tácito usa "scope": "" (toda la oración). Para compuestas asigna "P1", "P2", etc. según en qué proposición esté omitido.
+- Para oraciones simples con sujeto tácito usa "scope": "" (toda la oración). Para compuestas, "scope" puede ser una etiqueta libre que identifique la proposición (p. ej. el rango o el primer verbo). Si dudas, usa "" y se aplica a la oración entera.
 - Si NO hay sujetos tácitos, deja "tacitSubjects" como [].
 - JSON válido. Nada más.`;
 }
