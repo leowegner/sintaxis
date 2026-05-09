@@ -41,6 +41,7 @@ Nivel 1 (sintagma + función fusionados):
 - Verbo → "SV - NP" (cubre SOLO el verbo, nunca sus complementos)
 - Sujeto → "SN - NS" (UNA anotación que abarque determinante + núcleo + modificadores adjetivales, juntos)
 - Complementos → su función fusionada con el sintagma: "SN - CD", "SPrep - CCL", "SAdj - Atrib.", "SPrep - C. Agente", etc. Cada SN/SPrep abarca el determinante + núcleo + adyacentes EN UN ÚNICO RANGO.
+- CD de persona introducido por la preposición "a" ("Saludé a Juan", "Conozco al chico") → "SPrep - CD" (NO "SN - CD"). Si NO empieza por la preposición "a" → "SN - CD" ("Compré un libro").
 - Nexo coordinante → "Nx"
 - REGLA OBLIGATORIA: los determinantes (el, la, un, mi, este…) y los adjetivos modificadores NO llevan etiqueta propia: van DENTRO del rango del sintagma. NUNCA un determinante puede quedar sin cubrir. Si el estudiante deja un determinante sin marcar (p. ej. SN-CD solo sobre "manzana" en "la manzana"), eso ES un error y debes señalarlo.
 
@@ -177,13 +178,13 @@ Nivel 1 (sintagma + función fusionados):
 - Verbo → "SV - NP" (cubre SOLO el verbo, nunca sus complementos)
 - Sujeto → "SN - NS" (UNA SOLA anotación que abarque el determinante + el núcleo + cualquier modificador adjetival, todo junto)
 - Complementos → su función fusionada con el sintagma: "SN - CD", "SPrep - CCL", etc. CADA SN/SPrep abarca DET + NÚCLEO + ADYACENTES en un único rango.
+- CD de persona con preposición "a" ("Saludé a Juan", "Conozco al chico") → "SPrep - CD" (NO "SN - CD"). Si el CD NO lleva preposición "a" → "SN - CD" ("Compré un libro").
 - Nexo coordinante → "Nx"
 - REGLA OBLIGATORIA: los determinantes (el, la, los, las, un, una, mi, este, ese...) y los adjetivos modificadores NO llevan etiqueta propia: van DENTRO del rango del sintagma al que pertenecen. NUNCA dejes un determinante sin cubrir.
 
-Ejemplo concreto: en "El niño come la manzana roja":
-- "El niño" → SN - NS (from=0, to=1)
-- "come" → SV - NP (from=2, to=2)
-- "la manzana roja" → SN - CD (from=3, to=5)
+Ejemplos concretos:
+- "El niño come la manzana roja" → "El niño" SN-NS (0,1), "come" SV-NP (2,2), "la manzana roja" SN-CD (3,5).
+- "Saludé a Juan" → "Saludé" SV-NP (0,0), "a Juan" SPrep-CD (1,2). NO marcar como SN-CD.
 NO marques solo "niño" o solo "manzana" — incluye SIEMPRE su determinante y sus adjetivos.
 
 Nivel 2 (funciones oracionales — solo tres etiquetas):

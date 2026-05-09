@@ -37,6 +37,7 @@ const LEVELS = [
     { text: "SN - NS",       color: "#2563eb" },
     { text: "SV - NP",       color: "#16a34a" },
     { text: "SN - CD",       color: "#0891b2" },
+    { text: "SPrep - CD",    color: "#0891b2" },   // CD de persona con "a": "Saludé a Juan"
     { text: "SN - CI",       color: "#0891b2" },
     { text: "SPrep - CI",    color: "#0891b2" },
     { text: "SPrep - CCL",   color: "#ca8a04" },
