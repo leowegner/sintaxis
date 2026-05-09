@@ -1,0 +1,243 @@
+/* ============================================================
+   ESTILOS DE LA APLICACIÓN
+   ------------------------------------------------------------
+   Aquí está TODA la apariencia visual. Si quieres cambiar:
+     - Colores generales del fondo / texto → body
+     - Aspecto de los botones → button, .label-btn
+     - Tamaño de las palabras de la oración → .sentence-row
+     - Aspecto del lienzo blanco → .canvas
+     - Panel de anotaciones / picker de etiquetas → .panel, .label-grid
+     - Panel de IA → .ai-panel, #aiOutput, #costBar
+   Las @media queries al final adaptan la UI a móvil.
+   ============================================================ */
+
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0; padding: 24px;
+  background: #fafafa; color: #222;
+  -webkit-text-size-adjust: 100%;
+}
+@media (max-width: 900px) {
+  body { padding: 12px; }
+  .canvas { padding: 24px 12px !important; }
+  .sentence-row { padding: 0 40px !important; gap: 12px !important; }
+}
+h1 { margin: 0 0 16px; font-size: 20px; }
+
+/* ---------- Barra de herramientas superior ---------- */
+.toolbar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 16px; align-items: center;
+}
+input[type=text] {
+  flex: 1; min-width: 300px;
+  padding: 8px 12px; font-size: 16px;
+  border: 1px solid #ccc; border-radius: 6px;
+}
+.toolbar select {
+  padding: 8px 10px; font-size: 14px;
+  border: 1px solid #ccc; border-radius: 6px; background: white;
+  cursor: pointer; max-width: 220px;
+}
+button {
+  padding: 8px 14px; font-size: 14px;
+  border: 1px solid #ccc; background: white;
+  border-radius: 6px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* En pantallas táctiles, los targets son más grandes para ser más cómodos. */
+@media (hover: none) and (pointer: coarse) {
+  button { padding: 10px 16px; font-size: 15px; min-height: 44px; }
+  .label-btn { padding: 10px 12px !important; font-size: 14px !important; min-height: 44px; }
+  .toolbar select, .ai-panel select, .ai-panel input { min-height: 44px; }
+  input[type=text] { min-height: 44px; }
+}
+
+/* ---------- Menú "Más ⋯" ---------- */
+.more-menu { position: relative; }
+.more-menu summary {
+  padding: 8px 14px; font-size: 14px;
+  border: 1px solid #ccc; background: white;
+  border-radius: 6px; cursor: pointer;
+  list-style: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.more-menu summary::-webkit-details-marker { display: none; }
+.more-menu[open] summary { background: #f3f4f6; }
+.more-menu-content {
+  position: absolute; top: calc(100% + 4px); right: 0;
+  background: white; border: 1px solid #ddd; border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 6px; display: flex; flex-direction: column; gap: 4px;
+  z-index: 10; min-width: 180px;
+}
+.more-menu-content button {
+  text-align: left; border: none; background: none;
+  padding: 8px 10px; border-radius: 4px;
+}
+.more-menu-content button:hover { background: #f3f4f6; }
+button:hover { background: #f0f0f0; }
+button.primary { background: #2563eb; color: white; border-color: #2563eb; }
+button.primary:hover { background: #1d4ed8; }
+button.danger { color: #b91c1c; }
+
+/* ---------- Lienzo principal con la oración y las anotaciones ---------- */
+.canvas {
+  background: white; border: 1px solid #e5e5e5;
+  border-radius: 8px; padding: 40px 24px;
+  overflow-x: auto;
+  min-height: 300px;
+  user-select: none;
+}
+/* Envoltorio que permite superponer paréntesis SVG grandes
+   sobre la fila de palabras sin desplazarlas. */
+.sentence-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+.sentence-row {
+  display: flex; gap: 16px;
+  font-size: 22px; font-weight: 600;
+  position: relative;
+  padding: 0 80px;
+  z-index: 1;
+}
+/* Paréntesis grandes de subordinadas: SVG absoluto encima de la fila.
+   pointer-events:none para que no robe los clics a las palabras;
+   los paréntesis individuales se rehabilitan abajo. */
+svg.parens {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+svg.parens .paren-glyph { pointer-events: auto; cursor: pointer; }
+svg.parens .paren-glyph:hover { fill: #b91c1c; }
+.token {
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.token.selected { background: #fde68a; }
+.token:hover { background: #f3f4f6; }
+
+svg.lines { display: block; }
+
+.level-line { cursor: pointer; }
+.level-line:hover .line-bg { opacity: 0.15; }
+
+/* ---------- Panel inferior (picker de etiquetas, sujetos tácitos) ---------- */
+.panel {
+  margin-top: 16px; padding: 12px;
+  background: white; border: 1px solid #e5e5e5;
+  border-radius: 8px;
+}
+.panel h3 { margin: 0 0 8px; font-size: 14px; }
+.label-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+}
+.label-btn {
+  padding: 6px 8px; font-size: 12px;
+  border: 1px solid #ddd; background: white;
+  border-radius: 4px; cursor: pointer;
+  text-align: left;
+}
+.label-btn:hover { background: #f9fafb; }
+.label-btn .swatch {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 2px; margin-right: 6px; vertical-align: middle;
+}
+
+/* Lista de sujetos tácitos. */
+.tacit-list {
+  margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;
+  justify-content: center;
+}
+.tacit-chip {
+  font-size: 13px; color: #555;
+  background: #f3f4f6; padding: 4px 8px; border-radius: 4px;
+  display: inline-flex; gap: 6px; align-items: center;
+}
+.tacit-chip button {
+  border: none; background: none; cursor: pointer; color: #999;
+  padding: 0; font-size: 14px; line-height: 1;
+}
+.tacit-chip button:hover { color: #b91c1c; }
+.tacit-chip .scope { color: #888; font-size: 11px; }
+
+.tacit-add {
+  margin-top: 12px; display: flex; gap: 8px; align-items: center;
+  flex-wrap: wrap;
+}
+.tacit-add label { font-size: 13px; font-weight: 600; }
+.tacit-add select, .tacit-add input {
+  padding: 6px 8px; font-size: 13px;
+  border: 1px solid #ccc; border-radius: 4px;
+}
+.tacit-add input { flex: 1; min-width: 160px; }
+
+/* Acciones de selección (Extender / Borrar última anotación). */
+.selection-actions {
+  display: flex; gap: 8px; align-items: center;
+  margin: 4px 0 12px; flex-wrap: wrap;
+}
+.selection-actions button {
+  padding: 8px 12px; font-size: 13px;
+}
+#extendBtn.active {
+  background: #fde68a; border-color: #f59e0b; color: #92400e;
+}
+.selection-info { font-size: 12px; color: #666; }
+
+/* Tabs de niveles dentro del panel de anotación. */
+.level-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+.level-tabs button { font-size: 12px; padding: 4px 8px; }
+.level-tabs button.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+/* ---------- Panel de IA (corrector / analizador) ---------- */
+.ai-panel { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ai-panel input[type=password] {
+  padding: 6px 10px; font-size: 14px;
+  border: 1px solid #ccc; border-radius: 4px;
+  flex: 1 1 240px; min-width: 200px;
+}
+.ai-panel select {
+  padding: 6px 10px; font-size: 13px;
+  border: 1px solid #ccc; border-radius: 4px;
+}
+#costBar {
+  margin-top: 8px; display: flex; gap: 8px; align-items: center;
+  font-size: 12px; color: #555;
+}
+#costBar .dot { color: #aaa; }
+#costBar .hint-inline { color: #888; font-style: italic; }
+#costBar button.link {
+  border: none; background: none; color: #2563eb;
+  cursor: pointer; padding: 0; font-size: 12px; text-decoration: underline;
+}
+#aiOutput {
+  margin-top: 8px; padding: 10px;
+  background: #f9fafb; border-radius: 4px;
+  font-size: 13px;
+  max-height: 320px; overflow-y: auto;
+}
+#aiOutput .ai-fallback { white-space: pre-wrap; }
+#aiOutput .ai-head { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+#aiOutput .badge {
+  padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+}
+#aiOutput .badge.ok  { background: #dcfce7; color: #166534; }
+#aiOutput .badge.bad { background: #fee2e2; color: #991b1b; }
+#aiOutput .ai-section { margin-top: 8px; }
+#aiOutput ul { margin: 4px 0 0; padding-left: 18px; }
+#aiOutput li { margin-bottom: 4px; }
+#aiOutput code {
+  background: #eef2ff; padding: 1px 4px; border-radius: 3px; font-size: 12px;
+}
+.hint { color: #666; font-size: 12px; margin-top: 4px; }
