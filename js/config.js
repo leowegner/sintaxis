@@ -95,7 +95,13 @@ const LEVELS = [
     { text: "OCSubSus-Atrib", color: "#0e7490" },
     { text: "OCSubSus-CR",    color: "#0e7490" },
     { text: "OCSubSus-CN",    color: "#0e7490" },
-    { text: "OCSubRel",       color: "#7e22ce" },
+    // Subordinadas de relativo: distinguimos por antecedente.
+    // - "c. ant." (con antecedente expreso): "El libro que compré…"
+    //   El relativo tiene un sustantivo antecedente en la oración.
+    // - "s. ant." (sin antecedente, sustantivadas): "Quien quiera, que venga"
+    //   El relativo lleva el antecedente dentro (= "la persona que…").
+    { text: "OCSubRel (c. ant.)", color: "#7e22ce" },
+    { text: "OCSubRel (s. ant.)", color: "#7e22ce" },
   ]},
   /* Nivel 5 = paréntesis de subordinada. Es ESPECIAL: no se
      dibuja como una línea horizontal debajo de la oración, sino

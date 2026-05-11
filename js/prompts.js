@@ -64,7 +64,8 @@ Nivel 4 (etiqueta global de la oración entera, una sola anotación):
 - Compuesta coordinada: "OCCoordinada Copulativa", "OCCoordinada Adversativa", "OCCoordinada Disyuntiva".
 - Yuxtapuesta: "OCYuxtapuesta".
 - Subordinada sustantiva (combina tipo + función): "OCSubSus-CD", "OCSubSus-Suj", "OCSubSus-CI", "OCSubSus-Atrib", "OCSubSus-CR", "OCSubSus-CN".
-- Subordinada de relativo: "OCSubRel".
+- Subordinada de relativo CON antecedente expreso: "OCSubRel (c. ant.)". P.ej. "El libro que compré es interesante" → antecedente = "El libro".
+- Subordinada de relativo SIN antecedente (sustantivada; el relativo lleva el antecedente dentro): "OCSubRel (s. ant.)". P.ej. "Quien madruga consigue trabajo", "El que llega tarde paga" (cuando "el que" funciona como un SN entero sin antecedente nominal externo).
 
 Nivel 5 (paréntesis de subordinada — SOLO en subordinadas):
 - Marca el rango EXACTO de la subordinada incrustada con UNA anotación cuya etiqueta sea: "Sub. Sustantiva CD/Suj/CI/Atrib/CR/CN" o "Sub. Relativa".
@@ -130,7 +131,7 @@ EJEMPLO 2 — subordinada de relativo, "El libro que compré es interesante":
   {"rango":"compré","from":3,"to":3,"nivel":2,"etiqueta":"Predicado verbal"},
   {"rango":"es interesante","from":4,"to":5,"nivel":2,"etiqueta":"Predicado nominal"},
   {"rango":"que compré","from":2,"to":3,"nivel":3,"etiqueta":"OSAT"},
-  {"rango":"oración entera","from":0,"to":5,"nivel":4,"etiqueta":"OCSubRel"},
+  {"rango":"oración entera","from":0,"to":5,"nivel":4,"etiqueta":"OCSubRel (c. ant.)"},
   {"rango":"que compré","from":2,"to":3,"nivel":5,"etiqueta":"Sub. Relativa"}
 ]
 En nivel 3 SOLO va la OS· de la subordinada (OSAT, rango 2,3). NO marques OSCop/OSAT/etc. para la principal — la oración entera ya es OCSubRel (nivel 4); una compuesta no se clasifica como simple aparte. El paréntesis del nivel 5 envuelve solo la subordinada.
@@ -202,7 +203,8 @@ Nivel 4 (etiqueta global de la oración entera, una sola anotación):
 - Si es compuesta coordinada: "OCCoordinada Copulativa", "OCCoordinada Adversativa", "OCCoordinada Disyuntiva".
 - Si es yuxtapuesta: "OCYuxtapuesta".
 - Si es subordinada sustantiva (combina tipo + función): "OCSubSus-CD", "OCSubSus-Suj", "OCSubSus-CI", "OCSubSus-Atrib", "OCSubSus-CR", "OCSubSus-CN".
-- Si es subordinada de relativo: "OCSubRel".
+- Si es subordinada de relativo CON antecedente expreso: "OCSubRel (c. ant.)" — el relativo se refiere a un sustantivo presente en la oración ("El libro que compré…").
+- Si es subordinada de relativo SIN antecedente (sustantivada, el relativo lleva el antecedente dentro): "OCSubRel (s. ant.)" — "Quien madruga consigue trabajo", "El que llega tarde paga".
 
 Nivel 5 (paréntesis de subordinada — SOLO en oraciones con subordinada):
 - Marca el rango EXACTO de la subordinada (sustantiva o de relativo) con UNA anotación de nivel 5 cuya etiqueta sea el tipo: "Sub. Sustantiva CD", "Sub. Sustantiva Suj", "Sub. Sustantiva CI", "Sub. Sustantiva Atrib", "Sub. Sustantiva CR", "Sub. Sustantiva CN", "Sub. Relativa".
@@ -215,7 +217,7 @@ Ejemplo concreto, "El libro que compré es interesante":
 - Nivel 1: "El libro" SN-NS (0,1) | "que" Nx (2,2) | "compré" SV-NP (3,3) | "es" SV-NP (4,4) | "interesante" SAdj-Atrib. (5,5).
 - Nivel 2: "El libro" Sujeto (0,1) | "compré" Predicado verbal (3,3) | "es interesante" Predicado nominal (4,5).
 - Nivel 3 (clasif. de la subordinada): OSAT (2,3) — SOLO el rango de la relativa. NO marques nada para la principal aquí: la oración entera no es OSCop, es OCSubRel (eso ya va en nivel 4).
-- Nivel 4 (etiqueta global): OCSubRel (0,5).
+- Nivel 4 (etiqueta global): OCSubRel (c. ant.) (0,5).
 - Nivel 5 (paréntesis): "Sub. Relativa" (2,3).
 
 TOKENIZACIÓN: los signos de puntuación (, . ; : ¿ ? ¡ !) son tokens SEPARADOS. Las comas NO van dentro del rango del verbo.
@@ -280,7 +282,7 @@ EJEMPLO 3, "El libro que compré es interesante" (subordinada de relativo):
     {"from":3,"to":3,"level":2,"label":"Predicado verbal"},
     {"from":4,"to":5,"level":2,"label":"Predicado nominal"},
     {"from":2,"to":3,"level":3,"label":"OSAT"},
-    {"from":0,"to":5,"level":4,"label":"OCSubRel"},
+    {"from":0,"to":5,"level":4,"label":"OCSubRel (c. ant.)"},
     {"from":2,"to":3,"level":5,"label":"Sub. Relativa"}
   ],
   "tacitSubjects": [{"scope":"sub","text":"yo"}]
